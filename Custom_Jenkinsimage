@@ -1,0 +1,121 @@
+JENKINS CUSTOM IMAGE DOCKERFILE
+
+FROM centos
+RUN yum install java-1.8.0-openjdk -y
+ENV JENKINS_HOME=/var/jenkins_home
+WORKDIR $JENKINS_HOME
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war .
+RUN useradd jenkins
+RUN usermod -aG jenkins:jenkins 
+RUN chown -R jenkins:jenkins $JENKINS_HOME/jenkins 
+USER jenkins
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
+
+
+FROM centos
+RUN yum install java-1.8.0-openjdk -y
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+ENV JENKINS_HOME /var/lib/jenkins
+RUN mkdir -p $JENKINS_HOME
+WORKDIR $JENKINS_HOME
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war .
+RUN groupadd -g ${gid} ${group} \
+    && useradd -d "$JENKINS_HOME" -u ${uid} ${user} -g ${gid} 
+USER jenkins
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
+
+        
+FROM centos:7
+RUN yum install java-1.8.0-openjdk -y
+ARG user=jenkins
+ARG group=jenkins
+ENV JENKINS_HOME /var/lib/jenkins
+RUN mkdir -p $JENKINS_HOME
+WORKDIR $JENKINS_HOME
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war .
+RUN groupadd -g ${group} \
+    && useradd -u ${user}
+RUN usermod -aG jenkins jenkins
+RUN chown -R jenkins:jenkins $JENKINS_HOME 
+USER jenkins
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
+
+FROM centos
+RUN yum install java-1.8.0-openjdk -y
+ARG user=jenkins \
+     && group=jenkins \  
+      && uid=1000 \ 
+        && gid=1000
+ENV JENKINS_HOME /var/lib/jenkins
+WORKDIR $JENKINS_HOME
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war
+RUN groupadd -g ${gid} ${group} \
+    && useradd -d "$JENKINS_HOME" -u ${uid} ${user} -g ${gid}
+USER jenkins 
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
+
+FROM openjdk:9-b130-jdk
+ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+RUN mkdir -p "$CATALINA_HOME"
+WORKDIR $CATALINA_HOME
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.54/bin/apache-tomcat-9.0.54.tar.gz
+RUN tar -xvzf apache-tomcat-9.0.54.tar.gz
+RUN mv apache-tomcat-9.0.54.tar.gz tomcat9
+RUN rm -rf apache-tomcat-9.0.54.tar.gz
+RUN sed -i $CATALINA_HOME/conf/tomcat-users.xml/tomcat
+USER tomcat
+EXPOSE 8080
+CMD ["sh","catalina.sh","run"] 
+
+
+FROM openjdk:9-b130-jdk
+RUN mkdir -p /usr/local/tomcat
+ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+WORKDIR $CATALINA_HOME 
+ADD https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.54/bin/apache-tomcat-9.0.54.tar.gz
+RUN tar -xvzf apache-tomcat-9.0.54.tar.gz
+RUN mv apache-tomcat-9.0.54.tar.gz tomcat9
+RUN rm -rf apache-tomcat-9.0.54.tar.gz
+USER tomcat
+RUN sed -i $CATALINA_HOME/conf/tomcat-users.xml/tomcat
+EXPOSE 8080
+CMD ["sh","catalina.sh","run"] 
+
+
+FROM centos:7
+RUN yum install java-1.8.0-openjdk -y
+WORKDIR /usr/local/jenkins
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war .
+RUN useradd jenkins
+RUN usermod -aG jenkins jenkins
+RUN chown -R jenkins:jenkins /usr/local/jenkins
+USER jenkins
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
+
+
+
+
+FROM centos:7
+RUN yum install java-1.8.0-openjdk -y
+ARG user=jenkins
+ARG group=jenkins
+ENV JENKINS_HOME /var/lib/jenkins
+RUN mkdir -p $JENKINS_HOME
+WORKDIR $JENKINS_HOME
+ADD https://get.jenkins.io/war-stable/2.303.2/jenkins.war .
+RUN useradd jenkins
+RUN usermod -aG jenkins jenkins
+RUN chown -R jenkins:jenkins $JENKINS_HOME
+USER jenkins
+EXPOSE 8080
+CMD ["java","-jar","jenkins.war"]
